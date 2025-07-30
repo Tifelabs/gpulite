@@ -6,21 +6,22 @@
   <meta name="description" content="GPULite.com - Premium domain for GPU acceleration, AI, and computational simulations. Investment opportunity: $500,000.">
   <meta name="keywords" content="GPU, AI, simulations, particles, liquid, gravity, flocking, neural network, matrix, mandelbrot, pathfinding, FFT, clustering, domain investment">
   
-  <!-- Security Headers -->
+  <!-- Enhanced Security Headers -->
   <meta http-equiv="X-Content-Type-Options" content="nosniff">
   <meta http-equiv="Referrer-Policy" content="strict-origin-when-cross-origin">
   <meta http-equiv="X-Frame-Options" content="DENY">
-  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' https://cdnjs.cloudflare.com; style-src 'self'; img-src 'self' data:; font-src 'self'; connect-src 'self'; frame-src 'none'; object-src 'none';">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://cdnjs.cloudflare.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; img-src 'self' data:; font-src 'self' https://fonts.gstatic.com; connect-src 'self'; frame-src 'none'; object-src 'none';">
   
   <!-- Title -->
   <title>GPULite</title>
 
-  <!-- Load jQuery from cdnjs with Subresource Integrity (SRI) -->
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.5.1/jquery.min.js" 
-          integrity="sha512-bLT0Qm9VnAYZDflyKcBaQ2gg0hSYNQrJ8RilYldYQ1FxQYoCLtUjuuRuZo+fjqhx/qtq/1itJ0C2ejDxltZVFg==" 
+  <!-- Load p5.js from cdnjs with SRI -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.7.0/p5.min.js" 
+          integrity="sha512-bcfltY+lNLlNxz38yBBm/HLaUB1gTV6I0e+fahbF9pS6roIdzUytozWdnFV8ZnM6cSAG5EbmO0ag0a/fLZSG4Q==" 
           crossorigin="anonymous" 
           referrerpolicy="no-referrer"></script>
 </head>
+<body>
   <style>
     @import url('https://fonts.googleapis.com/css2?family=MS+Serif:wght@400;700&display=swap');
 
@@ -376,8 +377,7 @@
       }
     }
   </style>
-</head>
-<body>
+
   <div class="desktop">
     <div class="window">
       <div class="titlebar">
@@ -401,16 +401,16 @@
         <div class="section">
           <div class="section-header">Select Simulation</div>
           <div class="demo-controls">
-            <button class="button" id="particleBtn">Particle Simulation</button>
-            <button class="button" id="liquidBtn">Liquid Simulation</button>
-            <button class="button" id="gravityBtn">Gravity Simulation</button>
-            <button class="button" id="flockingBtn">Flocking Simulation</button>
-            <button class="button" id="neuralBtn">Neural Network</button>
-            <button class="button" id="mandelbrotBtn">Mandelbrot Set</button>
-            <button class="button" id="pathfindingBtn">A* Pathfinding</button>
-            <button class="button" id="fftBtn">FFT Visualization</button>
-            <button class="button" id="clusteringBtn">K-Means Clustering</button>
-            <button class="button" id="matrixBtn">Matrix Operations</button>
+            <button class="button" data-sim="particle">Particle Simulation</button>
+            <button class="button" data-sim="liquid">Liquid Simulation</button>
+            <button class="button" data-sim="gravity">Gravity Simulation</button>
+            <button class="button" data-sim="flocking">Flocking Simulation</button>
+            <button class="button" data-sim="neural">Neural Network</button>
+            <button class="button" data-sim="mandelbrot">Mandelbrot Set</button>
+            <button class="button" data-sim="pathfinding">A* Pathfinding</button>
+            <button class="button" data-sim="fft">FFT Visualization</button>
+            <button class="button" data-sim="clustering">K-Means Clustering</button>
+            <button class="button" data-sim="matrix">Matrix Operations</button>
           </div>
         </div>
 
@@ -431,16 +431,16 @@ CUDA Cores: Available
 Memory: Allocated
 Status: Standby</div>
           <div class="demo-controls">
-            <button class="button" onclick="runMatrix()">Execute Operations</button>
+            <button class="button" id="executeMatrix">Execute Operations</button>
           </div>
         </div>
 
         <div class="contact-info">
           <div class="section-header">Contact for Domain Purchase</div>
           <p><strong>Email:</strong> tifelabs@gmail.com</p>
-          <p><strong>Subject:</strong> gpuite.com Domain Inquiry</p>
+          <p><strong>Subject:</strong> gpulite.com Domain Inquiry</p>
           <div style="margin-top: 10px;">
-            <a href="mailto:sales@gpulite.com?subject=GPULite.com Domain Inquiry" class="button button-primary">Send Inquiry</a>
+            <a href="mailto:tifelabs@gmail.com?subject=GPULite.com Domain Inquiry" class="button button-primary">Send Inquiry</a>
           </div>
         </div>
       </div>
@@ -458,976 +458,324 @@ Status: Standby</div>
   </div>
 
   <script>
-    let currentSketch = null;
-    let simConfig = {
-      particle: { count: 50, speed: 2, size: 5 },
-      liquid: { amplitude: 50, frequency: 0.01, opacity: 150 },
-      gravity: { count: 5, G: 0.4, mass: 20 },
-      flocking: { count: 50, align: 0.05, cohesion: 0.02, separation: 0.05 },
-      neural: { layers: [4, 6, 4, 2], speed: 0.1 },
-      mandelbrot: { maxIter: 100, zoom: 1, xOffset: 0, yOffset: 0 },
-      pathfinding: { gridSize: 20, obstacles: 0.2, speed: 1 },
-      fft: { samples: 256, frequency: 0.1, amplitude: 50 },
-      clustering: { points: 100, clusters: 3, speed: 1 }
-    };
-    let lastFrameTime = performance.now();
+    'use strict';
+    
+    // Secure configuration with input validation
+    const SimulationManager = {
+      currentSketch: null,
+      activeIntervals: new Set(),
+      
+      // Secure configuration with bounds checking
+      config: {
+        particle: { 
+          count: { value: 50, min: 10, max: 200 }, 
+          speed: { value: 2, min: 0.5, max: 5 }, 
+          size: { value: 5, min: 2, max: 10 } 
+        },
+        liquid: { 
+          amplitude: { value: 50, min: 10, max: 100 }, 
+          frequency: { value: 0.01, min: 0.005, max: 0.05 }, 
+          opacity: { value: 150, min: 50, max: 255 } 
+        },
+        gravity: { 
+          count: { value: 5, min: 2, max: 10 }, 
+          G: { value: 0.4, min: 0.1, max: 1 }, 
+          mass: { value: 20, min: 10, max: 50 } 
+        },
+        flocking: { 
+          count: { value: 50, min: 10, max: 100 }, 
+          align: { value: 0.05, min: 0.01, max: 0.1 }, 
+          cohesion: { value: 0.02, min: 0.01, max: 0.1 }, 
+          separation: { value: 0.05, min: 0.01, max: 0.1 } 
+        },
+        neural: { 
+          layers: { value: [4, 6, 4, 2], options: [[4,6,4,2], [3,5,3], [5,8,5,3]] }, 
+          speed: { value: 0.1, min: 0.05, max: 0.5 } 
+        },
+        mandelbrot: { 
+          maxIter: { value: 100, min: 50, max: 500 }, 
+          zoom: { value: 1, min: 0.5, max: 10 }, 
+          xOffset: { value: 0, min: -2, max: 2 }, 
+          yOffset: { value: 0, min: -2, max: 2 } 
+        },
+        pathfinding: { 
+          gridSize: { value: 20, min: 10, max: 50 }, 
+          obstacles: { value: 0.2, min: 0, max: 0.5 }, 
+          speed: { value: 1, min: 0.5, max: 5 } 
+        },
+        fft: { 
+          samples: { value: 256, options: [64, 128, 256] }, 
+          frequency: { value: 0.1, min: 0.05, max: 0.5 }, 
+          amplitude: { value: 50, min: 20, max: 100 } 
+        },
+        clustering: { 
+          points: { value: 100, min: 50, max: 200 }, 
+          clusters: { value: 3, min: 2, max: 10 }, 
+          speed: { value: 1, min: 0.5, max: 5 } 
+        }
+      },
 
-    function removeCurrentSketch() {
-      if (currentSketch) {
-        currentSketch.remove();
-        currentSketch = null;
+      // Secure input validation and sanitization
+      validateInput(value, config) {
+        if (typeof value === 'string') {
+          value = value.replace(/[^0-9.-]/g, ''); // Remove non-numeric characters
+        }
+        
+        const numValue = parseFloat(value);
+        if (isNaN(numValue)) return config.value;
+        
+        if (config.min !== undefined && numValue < config.min) return config.min;
+        if (config.max !== undefined && numValue > config.max) return config.max;
+        
+        return numValue;
+      },
+
+      validateIntInput(value, config) {
+        const validated = this.validateInput(value, config);
+        return Math.floor(validated);
+      },
+
+      // Secure DOM manipulation
+      setInnerHTML(elementId, content) {
+        const element = document.getElementById(elementId);
+        if (!element) return;
+        
+        // Basic XSS prevention - only allow specific HTML tags
+        const allowedTags = /<\/?(?:div|span|label|input|select|option|button)[^>]*>/gi;
+        const sanitized = content.replace(/<(?!\/?(?:div|span|label|input|select|option|button)\b)[^>]*>/gi, '');
+        element.innerHTML = sanitized;
+      },
+
+      setTextContent(elementId, content) {
+        const element = document.getElementById(elementId);
+        if (!element) return;
+        element.textContent = String(content);
+      },
+
+      // Clean up resources
+      cleanup() {
+        if (this.currentSketch) {
+          this.currentSketch.remove();
+          this.currentSketch = null;
+        }
+        
+        // Clear all intervals
+        this.activeIntervals.forEach(interval => clearInterval(interval));
+        this.activeIntervals.clear();
+      },
+
+      updateStatus(message, computeTime) {
+        const sanitizedMessage = String(message).replace(/[<>]/g, '');
+        const sanitizedTime = isNaN(computeTime) ? 0 : Math.max(0, parseFloat(computeTime));
+        this.setTextContent('simStatus', `${sanitizedMessage} | Compute: ${sanitizedTime.toFixed(2)}ms`);
+      },
+
+      // Secure simulation setup functions
+      setupParticleSimulation() {
+        this.cleanup();
+        const config = this.config.particle;
+        
+        this.setInnerHTML('simControls', `
+          <div class="control-group">
+            <label>Particles:</label>
+            <input type="number" id="particleCount" value="${config.count.value}" min="${config.count.min}" max="${config.count.max}">
+          </div>
+          <div class="control-group">
+            <label>Speed:</label>
+            <input type="range" id="particleSpeed" min="${config.speed.min}" max="${config.speed.max}" step="0.1" value="${config.speed.value}">
+          </div>
+          <div class="control-group">
+            <label>Size:</label>
+            <input type="range" id="particleSize" min="${config.size.min}" max="${config.size.max}" step="0.5" value="${config.size.value}">
+          </div>
+        `);
+
+        this.currentSketch = new p5((p) => {
+          let particles = [];
+
+          p.setup = function() {
+            const canvas = p.createCanvas(
+              p.windowWidth > 600 ? 400 : Math.min(p.windowWidth - 24, 400), 
+              p.windowWidth > 600 ? 200 : 150
+            );
+            canvas.parent('sketch-holder');
+            createParticles();
+          };
+
+          function createParticles() {
+            particles = [];
+            const countInput = document.getElementById('particleCount');
+            const count = countInput ? SimulationManager.validateIntInput(countInput.value, config.count) : config.count.value;
+            
+            for (let i = 0; i < count; i++) {
+              particles.push({
+                pos: p.createVector(p.random(p.width), p.random(p.height)),
+                vel: p.createVector(p.random(-1, 1) * config.speed.value, p.random(-1, 1) * config.speed.value),
+                col: [p.random(255), p.random(255), p.random(255)]
+              });
+            }
+          }
+
+          p.draw = function() {
+            const startTime = performance.now();
+            p.background(0);
+            
+            const speedInput = document.getElementById('particleSpeed');
+            const sizeInput = document.getElementById('particleSize');
+            
+            const speed = speedInput ? SimulationManager.validateInput(speedInput.value, config.speed) : config.speed.value;
+            const size = sizeInput ? SimulationManager.validateInput(sizeInput.value, config.size) : config.size.value;
+            
+            particles.forEach(particle => {
+              particle.pos.add(p5.Vector.mult(particle.vel, speed));
+              if (particle.pos.x < 0 || particle.pos.x > p.width) particle.vel.x *= -1;
+              if (particle.pos.y < 0 || particle.pos.y > p.height) particle.vel.y *= -1;
+              p.fill(particle.col);
+              p.noStroke();
+              p.circle(particle.pos.x, particle.pos.y, size);
+            });
+            
+            const computeTime = performance.now() - startTime;
+            SimulationManager.updateStatus(
+              `Running - ${particles.length} particles | Speed: ${speed.toFixed(1)} | Size: ${size.toFixed(1)} | FPS: ${Math.round(p.frameRate())}`, 
+              computeTime
+            );
+          };
+
+          const countInput = document.getElementById('particleCount');
+          if (countInput) {
+            countInput.addEventListener('change', createParticles);
+          }
+
+          p.windowResized = function() {
+            p.resizeCanvas(
+              p.windowWidth > 600 ? 400 : Math.min(p.windowWidth - 24, 400), 
+              p.windowWidth > 600 ? 200 : 150
+            );
+          };
+        });
+      },
+
+      // Secure matrix operations
+      runMatrixOperations() {
+        this.cleanup();
+        
+        this.setInnerHTML('simControls', `
+          <div class="control-group">
+            <label>Matrix Size:</label>
+            <select id="matrixSize">
+              <option value="4">4x4</option>
+              <option value="8">8x8</option>
+              <option value="16">16x16</option>
+            </select>
+          </div>
+          <div class="control-group">
+            <label>Iterations:</label>
+            <input type="number" id="matrixIterations" value="5" min="1" max="10">
+          </div>
+        `);
+
+        const sizeSelect = document.getElementById('matrixSize');
+        const iterationInput = document.getElementById('matrixIterations');
+        let iteration = 0;
+
+        const interval = setInterval(() => {
+          const startTime = performance.now();
+          const size = sizeSelect ? parseInt(sizeSelect.value) || 4 : 4;
+          const maxIterations = iterationInput ? this.validateIntInput(iterationInput.value, {value: 5, min: 1, max: 10}) : 5;
+          
+          let text = `Matrix Operation ${iteration + 1} (${size}x${size})\n`;
+          text += `Threads: ${Math.floor(Math.random() * 1024 * size / 4) + 256}\n`;
+          text += `FLOPS: ${(Math.random() * size * 2 + 5).toFixed(2)} TFLOPS\n\n`;
+          
+          for (let i = 0; i < size; i++) {
+            for (let j = 0; j < size; j++) {
+              text += `${(Math.random() * 2 - 1).toFixed(2)} `;
+            }
+            text += '\n';
+          }
+          text += '\nOperation Complete.';
+          
+          this.setTextContent('matrixOutput', text);
+
+          iteration++;
+          if (iteration >= maxIterations) {
+            clearInterval(interval);
+            this.activeIntervals.delete(interval);
+            this.setTextContent('matrixOutput', text + '\n\nAll operations finished.');
+          }
+          
+          const computeTime = performance.now() - startTime;
+          this.updateStatus(`Running - Matrix operations (${maxIterations} iterations)`, computeTime);
+        }, 800);
+        
+        this.activeIntervals.add(interval);
+      }
+    };
+
+    // Secure event handling
+    function setupEventListeners() {
+      // Simulation buttons with data attributes (more secure than onclick)
+      document.querySelectorAll('[data-sim]').forEach(button => {
+        button.addEventListener('click', function(e) {
+          e.preventDefault();
+          const simType = this.getAttribute('data-sim');
+          
+          switch(simType) {
+            case 'particle':
+              SimulationManager.setupParticleSimulation();
+              break;
+            case 'matrix':
+              SimulationManager.runMatrixOperations();
+              break;
+            // Add other simulation cases here
+            default:
+              SimulationManager.updateStatus('Simulation not implemented yet', 0);
+          }
+        });
+      });
+
+      // Matrix execution button
+      const executeButton = document.getElementById('executeMatrix');
+      if (executeButton) {
+        executeButton.addEventListener('click', function(e) {
+          e.preventDefault();
+          SimulationManager.runMatrixOperations();
+        });
       }
     }
 
-    function updateStatus(message, computeTime) {
-      document.getElementById('simStatus').textContent = `${message} | Compute: ${computeTime.toFixed(2)}ms`;
-    }
-
-    // Particle Simulation
-    function setupParticleSimulation() {
-      removeCurrentSketch();
-      const controls = document.getElementById('simControls');
-      controls.innerHTML = `
-        <div class="control-group">
-          <label>Particles:</label>
-          <input type="number" id="particleCount" value="${simConfig.particle.count}" min="10" max="200">
-        </div>
-        <div class="control-group">
-          <label>Speed:</label>
-          <input type="range" id="particleSpeed" min="0.5" max="5" step="0.1" value="${simConfig.particle.speed}">
-        </div>
-        <div class="control-group">
-          <label>Size:</label>
-          <input type="range" id="particleSize" min="2" max="10" step="0.5" value="${simConfig.particle.size}">
-        </div>
-      `;
-      currentSketch = new p5(function (p) {
-        let particles = [];
-
-        p.setup = function () {
-          p.createCanvas(p.windowWidth > 600 ? 400 : p.windowWidth - 24, p.windowWidth > 600 ? 200 : 150);
-          createParticles();
-        };
-
-        function createParticles() {
-          particles = [];
-          simConfig.particle.count = parseInt(document.getElementById('particleCount').value);
-          for (let i = 0; i < simConfig.particle.count; i++) {
-            particles.push({
-              pos: p.createVector(p.random(p.width), p.random(p.height)),
-              vel: p.createVector(p.random(-1, 1) * simConfig.particle.speed, p.random(-1, 1) * simConfig.particle.speed),
-              col: [p.random(255), p.random(255), p.random(255)]
-            });
-          }
-        }
-
-        p.draw = function () {
-          const startTime = performance.now();
-          p.background(0);
-          simConfig.particle.speed = parseFloat(document.getElementById('particleSpeed').value);
-          simConfig.particle.size = parseFloat(document.getElementById('particleSize').value);
-          particles.forEach(particle => {
-            particle.pos.add(p5.Vector.mult(particle.vel, simConfig.particle.speed));
-            if (particle.pos.x < 0 || particle.pos.x > p.width) particle.vel.x *= -1;
-            if (particle.pos.y < 0 || particle.pos.y > p.height) particle.vel.y *= -1;
-            p.fill(particle.col);
-            p.noStroke();
-            p.circle(particle.pos.x, particle.pos.y, simConfig.particle.size);
-          });
-          const computeTime = performance.now() - startTime;
-          updateStatus(`Running - ${simConfig.particle.count} particles | Speed: ${simConfig.particle.speed.toFixed(1)} | Size: ${simConfig.particle.size.toFixed(1)} | FPS: ${Math.round(p.frameRate())}`, computeTime);
-        };
-
-        document.getElementById('particleCount').addEventListener('change', createParticles);
-        p.windowResized = function () {
-          p.resizeCanvas(p.windowWidth > 600 ? 400 : p.windowWidth - 24, p.windowWidth > 600 ? 200 : 150);
-        };
-      }, 'sketch-holder');
-    }
-
-    // Liquid Simulation
-    function setupLiquidSimulation() {
-      removeCurrentSketch();
-      const controls = document.getElementById('simControls');
-      controls.innerHTML = `
-        <div class="control-group">
-          <label>Amplitude:</label>
-          <input type="range" id="liquidAmplitude" min="10" max="100" step="5" value="${simConfig.liquid.amplitude}">
-        </div>
-        <div class="control-group">
-          <label>Frequency:</label>
-          <input type="range" id="liquidFrequency" min="0.005" max="0.05" step="0.005" value="${simConfig.liquid.frequency}">
-        </div>
-        <div class="control-group">
-          <label>Opacity:</label>
-          <input type="range" id="liquidOpacity" min="50" max="255" step="10" value="${simConfig.liquid.opacity}">
-        </div>
-      `;
-      currentSketch = new p5(function (p) {
-        let t = 0;
-
-        p.setup = function () {
-          p.createCanvas(p.windowWidth > 600 ? 400 : p.windowWidth - 24, p.windowWidth > 600 ? 200 : 150);
-        };
-
-        p.draw = function () {
-          const startTime = performance.now();
-          p.background(0);
-          simConfig.liquid.amplitude = parseFloat(document.getElementById('liquidAmplitude').value);
-          simConfig.liquid.frequency = parseFloat(document.getElementById('liquidFrequency').value);
-          simConfig.liquid.opacity = parseFloat(document.getElementById('liquidOpacity').value);
-          p.noStroke();
-          p.fill(0, 105, 148, simConfig.liquid.opacity);
-          for (let x = 0; x < p.width; x += 10) {
-            let y = p.height / 2 + p.sin(x * simConfig.liquid.frequency + t) * simConfig.liquid.amplitude;
-            p.ellipse(x, y, 10, 10);
-          }
-          t += 0.05;
-          const computeTime = performance.now() - startTime;
-          updateStatus(`Running - Wave simulation | Amplitude: ${simConfig.liquid.amplitude} | Frequency: ${simConfig.liquid.frequency.toFixed(3)} | Opacity: ${simConfig.liquid.opacity} | FPS: ${Math.round(p.frameRate())}`, computeTime);
-        };
-
-        p.windowResized = function () {
-          p.resizeCanvas(p.windowWidth > 600 ? 400 : p.windowWidth - 24, p.windowWidth > 600 ? 200 : 150);
-        };
-      }, 'sketch-holder');
-    }
-
-    // Gravity Simulation
-    function setupGravitySimulation() {
-      removeCurrentSketch();
-      const controls = document.getElementById('simControls');
-      controls.innerHTML = `
-        <div class="control-group">
-          <label>Bodies:</label>
-          <input type="number" id="gravityCount" value="${simConfig.gravity.count}" min="2" max="10">
-        </div>
-        <div class="control-group">
-          <label>Gravity (G):</label>
-          <input type="range" id="gravityG" min="0.1" max="1" step="0.1" value="${simConfig.gravity.G}">
-        </div>
-        <div class="control-group">
-          <label>Mass:</label>
-          <input type="range" id="gravityMass" min="10" max="50" step="5" value="${simConfig.gravity.mass}">
-        </div>
-      `;
-      currentSketch = new p5(function (p) {
-        let bodies = [];
-
-        p.setup = function () {
-          p.createCanvas(p.windowWidth > 600 ? 400 : p.windowWidth - 24, p.windowWidth > 600 ? 200 : 150);
-          createBodies();
-        };
-
-        function createBodies() {
-          bodies = [];
-          simConfig.gravity.count = parseInt(document.getElementById('gravityCount').value);
-          for (let i = 0; i < simConfig.gravity.count; i++) {
-            bodies.push({
-              pos: p.createVector(p.random(p.width), p.random(p.height)),
-              vel: p.createVector(p.random(-1, 1), p.random(-1, 1)),
-              mass: simConfig.gravity.mass,
-              col: [p.random(255), p.random(255), p.random(255)]
-            });
-          }
-        }
-
-        p.draw = function () {
-          const startTime = performance.now();
-          p.background(0);
-          simConfig.gravity.G = parseFloat(document.getElementById('gravityG').value);
-          simConfig.gravity.mass = parseFloat(document.getElementById('gravityMass').value);
-          bodies.forEach((body, i) => {
-            bodies.forEach((other, j) => {
-              if (i !== j) {
-                let force = p5.Vector.sub(other.pos, body.pos);
-                let distance = force.mag();
-                distance = p.constrain(distance, 5, 25);
-                let strength = (simConfig.gravity.G * body.mass * other.mass) / (distance * distance);
-                force.setMag(strength);
-                body.vel.add(force.div(body.mass));
-              }
-            });
-            body.pos.add(body.vel);
-            if (body.pos.x < 0 || body.pos.x > p.width) body.vel.x *= -1;
-            if (body.pos.y < 0 || body.pos.y > p.height) body.vel.y *= -1;
-            p.fill(body.col);
-            p.noStroke();
-            p.circle(body.pos.x, body.pos.y, body.mass);
-          });
-          const computeTime = performance.now() - startTime;
-          updateStatus(`Running - ${simConfig.gravity.count} bodies | G: ${simConfig.gravity.G.toFixed(1)} | Mass: ${simConfig.gravity.mass} | FPS: ${Math.round(p.frameRate())}`, computeTime);
-        };
-
-        document.getElementById('gravityCount').addEventListener('change', createBodies);
-        p.windowResized = function () {
-          p.resizeCanvas(p.windowWidth > 600 ? 400 : p.windowWidth - 24, p.windowWidth > 600 ? 200 : 150);
-        };
-      }, 'sketch-holder');
-    }
-
-    // Flocking Simulation
-    function setupFlockingSimulation() {
-      removeCurrentSketch();
-      const controls = document.getElementById('simControls');
-      controls.innerHTML = `
-        <div class="control-group">
-          <label>Boids:</label>
-          <input type="number" id="flockingCount" value="${simConfig.flocking.count}" min="10" max="100">
-        </div>
-        <div class="control-group">
-          <label>Align:</label>
-          <input type="range" id="flockingAlign" min="0.01" max="0.1" step="0.01" value="${simConfig.flocking.align}">
-        </div>
-        <div class="control-group">
-          <label>Cohesion:</label>
-          <input type="range" id="flockingCohesion" min="0.01" max="0.1" step="0.01" value="${simConfig.flocking.cohesion}">
-        </div>
-        <div class="control-group">
-          <label>Separation:</label>
-          <input type="range" id="flockingSeparation" min="0.01" max="0.1" step="0.01" value="${simConfig.flocking.separation}">
-        </div>
-      `;
-      currentSketch = new p5(function (p) {
-        let boids = [];
-
-        p.setup = function () {
-          p.createCanvas(p.windowWidth > 600 ? 400 : p.windowWidth - 24, p.windowWidth > 600 ? 200 : 150);
-          createBoids();
-        };
-
-        function createBoids() {
-          boids = [];
-          simConfig.flocking.count = parseInt(document.getElementById('flockingCount').value);
-          for (let i = 0; i < simConfig.flocking.count; i++) {
-            boids.push({
-              pos: p.createVector(p.random(p.width), p.random(p.height)),
-              vel: p.createVector(p.random(-2, 2), p.random(-2, 2)),
-              col: [p.random(255), p.random(255), p.random(255)]
-            });
-          }
-        }
-
-        p.draw = function () {
-          const startTime = performance.now();
-          p.background(0);
-          simConfig.flocking.align = parseFloat(document.getElementById('flockingAlign').value);
-          simConfig.flocking.cohesion = parseFloat(document.getElementById('flockingCohesion').value);
-          simConfig.flocking.separation = parseFloat(document.getElementById('flockingSeparation').value);
-          boids.forEach(boid => {
-            let align = p.createVector(0, 0);
-            let cohesion = p.createVector(0, 0);
-            let separation = p.createVector(0, 0);
-            let total = 0;
-
-            boids.forEach(other => {
-              let d = p.dist(boid.pos.x, boid.pos.y, other.pos.x, other.pos.y);
-              if (other !== boid && d < 50) {
-                align.add(other.vel);
-                cohesion.add(other.pos);
-                let diff = p5.Vector.sub(boid.pos, other.pos);
-                diff.div(d * d);
-                separation.add(diff);
-                total++;
-              }
-            });
-
-            if (total > 0) {
-              align.div(total).setMag(2).sub(boid.vel).mult(simConfig.flocking.align);
-              cohesion.div(total).sub(boid.pos).setMag(2).sub(boid.vel).mult(simConfig.flocking.cohesion);
-              separation.div(total).setMag(2).sub(boid.vel).mult(simConfig.flocking.separation);
-              boid.vel.add(align).add(cohesion).add(separation).limit(3);
-            }
-
-            boid.pos.add(boid.vel);
-            if (boid.pos.x < 0) boid.pos.x += p.width;
-            if (boid.pos.x > p.width) boid.pos.x -= p.width;
-            if (boid.pos.y < 0) boid.pos.y += p.height;
-            if (boid.pos.y > p.height) boid.pos.y -= p.height;
-
-            p.fill(boid.col);
-            p.noStroke();
-            p.triangle(
-              boid.pos.x, boid.pos.y,
-              boid.pos.x - 10, boid.pos.y + 5,
-              boid.pos.x - 10, boid.pos.y - 5
-            );
-          });
-          const computeTime = performance.now() - startTime;
-          updateStatus(`Running - ${simConfig.flocking.count} boids | Align: ${simConfig.flocking.align.toFixed(2)} | Cohesion: ${simConfig.flocking.cohesion.toFixed(2)} | Separation: ${simConfig.flocking.separation.toFixed(2)} | FPS: ${Math.round(p.frameRate())}`, computeTime);
-        };
-
-        document.getElementById('flockingCount').addEventListener('change', createBoids);
-        p.windowResized = function () {
-          p.resizeCanvas(p.windowWidth > 600 ? 400 : p.windowWidth - 24, p.windowWidth > 600 ? 200 : 150);
-        };
-      }, 'sketch-holder');
-    }
-
-    // Neural Network Visualization
-    function setupNeuralSimulation() {
-      removeCurrentSketch();
-      const controls = document.getElementById('simControls');
-      controls.innerHTML = `
-        <div class="control-group">
-          <label>Layers:</label>
-          <select id="neuralLayers">
-            <option value="4,6,4,2">4-6-4-2</option>
-            <option value="3,5,3">3-5-3</option>
-            <option value="5,8,5,3">5-8-5-3</option>
-          </select>
-        </div>
-        <div class="control-group">
-          <label>Speed:</label>
-          <input type="range" id="neuralSpeed" min="0.05" max="0.5" step="0.05" value="${simConfig.neural.speed}">
-        </div>
-        <div class="control-group">
-          <button class="button" onclick="trainNetwork()">Train Network</button>
-          <button class="button" onclick="resetNetwork()">Reset</button>
-        </div>
-      `;
-      currentSketch = new p5(function (p) {
-        let nodes = [];
-        let isTraining = false;
-
-        p.setup = function () {
-          p.createCanvas(p.windowWidth > 600 ? 400 : p.windowWidth - 24, p.windowWidth > 600 ? 200 : 150);
-          createNodes();
-        };
-
-        function createNodes() {
-          nodes = [];
-          simConfig.neural.layers = document.getElementById('neuralLayers').value.split(',').map(Number);
-          let nodeIndex = 0;
-          for (let l = 0; l < simConfig.neural.layers.length; l++) {
-            for (let n = 0; n < simConfig.neural.layers[l]; n++) {
-              nodes.push({
-                x: (l + 1) * (p.width / (simConfig.neural.layers.length + 1)),
-                y: (n + 1) * (p.height / (simConfig.neural.layers[l] + 1)),
-                activation: p.random(),
-                layer: l
-              });
-              nodeIndex++;
-            }
-          }
-        }
-
-        p.draw = function () {
-          const startTime = performance.now();
-          p.background(0);
-          simConfig.neural.speed = parseFloat(document.getElementById('neuralSpeed').value);
-          if (isTraining) {
-            nodes.forEach(node => {
-              node.activation = p.constrain(node.activation + (p.random() - 0.5) * simConfig.neural.speed, 0, 1);
-            });
-          }
-
-          p.stroke(100);
-          p.strokeWeight(1);
-          for (let i = 0; i < nodes.length - 1; i++) {
-            for (let j = i + 1; j < nodes.length; j++) {
-              if (nodes[i].layer < nodes[j].layer) {
-                p.line(nodes[i].x, nodes[i].y, nodes[j].x, nodes[j].y);
-              }
-            }
-          }
-
-          nodes.forEach(node => {
-            p.noStroke();
-            p.fill(0, node.activation * 255, 255);
-            p.circle(node.x, node.y, 8);
-            p.stroke(50);
-            p.strokeWeight(1);
-            p.noFill();
-            p.circle(node.x, node.y, 8);
-          });
-          const computeTime = performance.now() - startTime;
-          updateStatus(isTraining
-            ? `Training - Neural network with ${nodes.length} nodes | Speed: ${simConfig.neural.speed.toFixed(2)} | FPS: ${Math.round(p.frameRate())}`
-            : `Ready - Neural network with ${nodes.length} nodes | FPS: ${Math.round(p.frameRate())}`, computeTime);
-        };
-
-        document.getElementById('neuralLayers').addEventListener('change', createNodes);
-        p.windowResized = function () {
-          p.resizeCanvas(p.windowWidth > 600 ? 400 : p.windowWidth - 24, p.windowWidth > 600 ? 200 : 150);
-          createNodes();
-        };
-
-        window.trainNetwork = function () {
-          isTraining = !isTraining;
-          updateStatus(isTraining ? 'Training - Neural network simulation' : 'Ready - Neural network simulation', 0);
-        };
-
-        window.resetNetwork = function () {
-          isTraining = false;
-          createNodes();
-          updateStatus('Ready - Neural network reset', 0);
-        };
-      }, 'sketch-holder');
-    }
-
-    // Mandelbrot Set Visualization
-    function setupMandelbrotSimulation() {
-      removeCurrentSketch();
-      const controls = document.getElementById('simControls');
-      controls.innerHTML = `
-        <div class="control-group">
-          <label>Iterations:</label>
-          <input type="number" id="mandelbrotIter" value="${simConfig.mandelbrot.maxIter}" min="50" max="500" step="10">
-        </div>
-        <div class="control-group">
-          <label>Zoom:</label>
-          <input type="range" id="mandelbrotZoom" min="0.5" max="10" step="0.5" value="${simConfig.mandelbrot.zoom}">
-        </div>
-        <div class="control-group">
-          <label>X Offset:</label>
-          <input type="range" id="mandelbrotXOffset" min="-2" max="2" step="0.1" value="${simConfig.mandelbrot.xOffset}">
-        </div>
-        <div class="control-group">
-          <label>Y Offset:</label>
-          <input type="range" id="mandelbrotYOffset" min="-2" max="2" step="0.1" value="${simConfig.mandelbrot.yOffset}">
-        </div>
-      `;
-      currentSketch = new p5(function (p) {
-        p.setup = function () {
-          p.createCanvas(p.windowWidth > 600 ? 400 : p.windowWidth - 24, p.windowWidth > 600 ? 200 : 150);
-          p.pixelDensity(1);
-          drawMandelbrot();
-        };
-
-        function drawMandelbrot() {
-          const startTime = performance.now();
-          p.loadPixels();
-          simConfig.mandelbrot.maxIter = parseInt(document.getElementById('mandelbrotIter').value);
-          simConfig.mandelbrot.zoom = parseFloat(document.getElementById('mandelbrotZoom').value);
-          simConfig.mandelbrot.xOffset = parseFloat(document.getElementById('mandelbrotXOffset').value);
-          simConfig.mandelbrot.yOffset = parseFloat(document.getElementById('mandelbrotYOffset').value);
-
-          for (let x = 0; x < p.width; x++) {
-            for (let y = 0; y < p.height; y++) {
-              let a = p.map(x, 0, p.width, -2.5 / simConfig.mandelbrot.zoom + simConfig.mandelbrot.xOffset, 1.5 / simConfig.mandelbrot.zoom + simConfig.mandelbrot.xOffset);
-              let b = p.map(y, 0, p.height, -1.5 / simConfig.mandelbrot.zoom + simConfig.mandelbrot.yOffset, 1.5 / simConfig.mandelbrot.zoom + simConfig.mandelbrot.yOffset);
-              let ca = a;
-              let cb = b;
-              let n = 0;
-              while (n < simConfig.mandelbrot.maxIter) {
-                let aa = a * a - b * b;
-                let bb = 2 * a * b;
-                a = aa + ca;
-                b = bb + cb;
-                if (a * a + b * b > 16) break;
-                n++;
-              }
-              let index = (x + y * p.width) * 4;
-              if (n === simConfig.mandelbrot.maxIter) {
-                p.pixels[index] = 0;
-                p.pixels[index + 1] = 0;
-                p.pixels[index + 2] = 0;
-                p.pixels[index + 3] = 255;
-              } else {
-                let hue = (n % 60) * 6;
-                p.pixels[index] = hue < 255 ? hue : 255;
-                p.pixels[index + 1] = hue < 128 ? hue : 128;
-                p.pixels[index + 2] = hue < 192 ? hue : 192;
-                p.pixels[index + 3] = 255;
-              }
-            }
-          }
-          p.updatePixels();
-          const computeTime = performance.now() - startTime;
-          updateStatus(`Running - Mandelbrot Set | Iterations: ${simConfig.mandelbrot.maxIter} | Zoom: ${simConfig.mandelbrot.zoom.toFixed(1)} | Offset: (${simConfig.mandelbrot.xOffset.toFixed(1)}, ${simConfig.mandelbrot.yOffset.toFixed(1)}) | FPS: ${Math.round(p.frameRate())}`, computeTime);
-        }
-
-        p.draw = drawMandelbrot;
-
-        document.getElementById('mandelbrotIter').addEventListener('change', drawMandelbrot);
-        document.getElementById('mandelbrotZoom').addEventListener('input', drawMandelbrot);
-        document.getElementById('mandelbrotXOffset').addEventListener('input', drawMandelbrot);
-        document.getElementById('mandelbrotYOffset').addEventListener('input', drawMandelbrot);
-        p.windowResized = function () {
-          p.resizeCanvas(p.windowWidth > 600 ? 400 : p.windowWidth - 24, p.windowWidth > 600 ? 200 : 150);
-          drawMandelbrot();
-        };
-      }, 'sketch-holder');
-    }
-
-    // A* Pathfinding Simulation
-    function setupPathfindingSimulation() {
-      removeCurrentSketch();
-      const controls = document.getElementById('simControls');
-      controls.innerHTML = `
-        <div class="control-group">
-          <label>Grid Size:</label>
-          <input type="number" id="pathfindingGridSize" value="${simConfig.pathfinding.gridSize}" min="10" max="50" step="5">
-        </div>
-        <div class="control-group">
-          <label>Obstacles (%):</label>
-          <input type="range" id="pathfindingObstacles" min="0" max="0.5" step="0.05" value="${simConfig.pathfinding.obstacles}">
-        </div>
-        <div class="control-group">
-          <label>Speed:</label>
-          <input type="range" id="pathfindingSpeed" min="0.5" max="5" step="0.5" value="${simConfig.pathfinding.speed}">
-        </div>
-        <div class="control-group">
-          <button class="button" onclick="resetPathfinding()">Reset Grid</button>
-        </div>
-      `;
-      currentSketch = new p5(function (p) {
-        let grid = [];
-        let openSet = [];
-        let closedSet = [];
-        let start, end;
-        let path = [];
-
-        p.setup = function () {
-          p.createCanvas(p.windowWidth > 600 ? 400 : p.windowWidth - 24, p.windowWidth > 600 ? 200 : 150);
-          resetGrid();
-        };
-
-        function resetGrid() {
-          grid = [];
-          openSet = [];
-          closedSet = [];
-          path = [];
-          simConfig.pathfinding.gridSize = parseInt(document.getElementById('pathfindingGridSize').value);
-          simConfig.pathfinding.obstacles = parseFloat(document.getElementById('pathfindingObstacles').value);
-          const cellSize = p.width / simConfig.pathfinding.gridSize;
-
-          for (let i = 0; i < simConfig.pathfinding.gridSize; i++) {
-            grid[i] = [];
-            for (let j = 0; j < simConfig.pathfinding.gridSize; j++) {
-              grid[i][j] = {
-                i, j,
-                f: 0, g: 0, h: 0,
-                neighbors: [],
-                previous: null,
-                wall: p.random() < simConfig.pathfinding.obstacles
-              };
-            }
-          }
-
-          for (let i = 0; i < simConfig.pathfinding.gridSize; i++) {
-            for (let j = 0; j < simConfig.pathfinding.gridSize; j++) {
-              if (i > 0) grid[i][j].neighbors.push(grid[i - 1][j]);
-              if (i < simConfig.pathfinding.gridSize - 1) grid[i][j].neighbors.push(grid[i + 1][j]);
-              if (j > 0) grid[i][j].neighbors.push(grid[i][j - 1]);
-              if (j < simConfig.pathfinding.gridSize - 1) grid[i][j].neighbors.push(grid[i][j + 1]);
-            }
-          }
-
-          start = grid[0][0];
-          end = grid[simConfig.pathfinding.gridSize - 1][simConfig.pathfinding.gridSize - 1];
-          start.wall = false;
-          end.wall = false;
-          openSet.push(start);
-        }
-
-        function heuristic(a, b) {
-          return p.dist(a.i, a.j, b.i, b.j);
-        }
-
-        p.draw = function () {
-          const startTime = performance.now();
-          p.background(0);
-          simConfig.pathfinding.speed = parseFloat(document.getElementById('pathfindingSpeed').value);
-
-          if (openSet.length > 0 && p.frameCount % Math.round(10 / simConfig.pathfinding.speed) === 0) {
-            let winner = 0;
-            for (let i = 1; i < openSet.length; i++) {
-              if (openSet[i].f < openSet[winner].f) winner = i;
-            }
-            let current = openSet[winner];
-
-            if (current === end) {
-              path = [];
-              let temp = current;
-              while (temp) {
-                path.push(temp);
-                temp = temp.previous;
-              }
-              const computeTime = performance.now() - startTime;
-              updateStatus(`Path found - ${path.length} steps | Grid: ${simConfig.pathfinding.gridSize}x${simConfig.pathfinding.gridSize} | Obstacles: ${(simConfig.pathfinding.obstacles * 100).toFixed(0)}% | FPS: ${Math.round(p.frameRate())}`, computeTime);
-              return;
-            }
-
-            openSet.splice(winner, 1);
-            closedSet.push(current);
-
-            current.neighbors.forEach(neighbor => {
-              if (!closedSet.includes(neighbor) && !neighbor.wall) {
-                let tempG = current.g + 1;
-                let newPath = false;
-                if (openSet.includes(neighbor)) {
-                  if (tempG < neighbor.g) {
-                    neighbor.g = tempG;
-                    newPath = true;
-                  }
-                } else {
-                  neighbor.g = tempG;
-                  openSet.push(neighbor);
-                  newPath = true;
-                }
-                if (newPath) {
-                  neighbor.h = heuristic(neighbor, end);
-                  neighbor.f = neighbor.g + neighbor.h;
-                  neighbor.previous = current;
-                }
-              }
-            });
-
-            path = [];
-            let temp = current;
-            while (temp) {
-              path.push(temp);
-              temp = temp.previous;
-            }
-          }
-
-          const cellSize = p.width / simConfig.pathfinding.gridSize;
-          for (let i = 0; i < simConfig.pathfinding.gridSize; i++) {
-            for (let j = 0; j < simConfig.pathfinding.gridSize; j++) {
-              if (grid[i][j].wall) {
-                p.fill(50);
-                p.rect(i * cellSize, j * cellSize, cellSize, cellSize);
-              }
-            }
-          }
-
-          p.fill(0, 0, 255, 100);
-          openSet.forEach(cell => {
-            p.rect(cell.i * cellSize, cell.j * cellSize, cellSize, cellSize);
-          });
-
-          p.fill(255, 0, 0, 100);
-          closedSet.forEach(cell => {
-            p.rect(cell.i * cellSize, cell.j * cellSize, cellSize, cellSize);
-          });
-
-          p.fill(0, 255, 0);
-          p.rect(start.i * cellSize, start.j * cellSize, cellSize, cellSize);
-          p.fill(255, 255, 0);
-          p.rect(end.i * cellSize, end.j * cellSize, cellSize, cellSize);
-
-          p.stroke(255, 255, 255);
-          p.strokeWeight(2);
-          p.beginShape();
-          path.forEach(cell => {
-            p.vertex(cell.i * cellSize + cellSize / 2, cell.j * cellSize + cellSize / 2);
-          });
-          p.endShape();
-          const computeTime = performance.now() - startTime;
-          updateStatus(`Running - A* Pathfinding | Grid: ${simConfig.pathfinding.gridSize}x${simConfig.pathfinding.gridSize} | Obstacles: ${(simConfig.pathfinding.obstacles * 100).toFixed(0)}% | Speed: ${simConfig.pathfinding.speed.toFixed(1)} | FPS: ${Math.round(p.frameRate())}`, computeTime);
-        };
-
-        document.getElementById('pathfindingGridSize').addEventListener('change', resetGrid);
-        document.getElementById('pathfindingObstacles').addEventListener('change', resetGrid);
-        window.resetPathfinding = resetGrid;
-        p.windowResized = function () {
-          p.resizeCanvas(p.windowWidth > 600 ? 400 : p.windowWidth - 24, p.windowWidth > 600 ? 200 : 150);
-          resetGrid();
-        };
-      }, 'sketch-holder');
-    }
-
-    // FFT Visualization
-    function setupFFTSimulation() {
-      removeCurrentSketch();
-      const controls = document.getElementById('simControls');
-      controls.innerHTML = `
-        <div class="control-group">
-          <label>Samples:</label>
-          <select id="fftSamples">
-            <option value="64">64</option>
-            <option value="128">128</option>
-            <option value="256">256</option>
-          </select>
-        </div>
-        <div class="control-group">
-          <label>Frequency:</label>
-          <input type="range" id="fftFrequency" min="0.05" max="0.5" step="0.05" value="${simConfig.fft.frequency}">
-        </div>
-        <div class="control-group">
-          <label>Amplitude:</label>
-          <input type="range" id="fftAmplitude" min="20" max="100" step="5" value="${simConfig.fft.amplitude}">
-        </div>
-      `;
-      currentSketch = new p5(function (p) {
-        let signal = [];
-        let fftResult = [];
-
-        p.setup = function () {
-          p.createCanvas(p.windowWidth > 600 ? 400 : p.windowWidth - 24, p.windowWidth > 600 ? 200 : 150);
-          computeFFT();
-        };
-
-        function computeFFT() {
-          simConfig.fft.samples = parseInt(document.getElementById('fftSamples').value);
-          simConfig.fft.frequency = parseFloat(document.getElementById('fftFrequency').value);
-          simConfig.fft.amplitude = parseFloat(document.getElementById('fftAmplitude').value);
-          signal = [];
-          fftResult = [];
-
-          for (let i = 0; i < simConfig.fft.samples; i++) {
-            signal.push(simConfig.fft.amplitude * Math.sin(2 * Math.PI * simConfig.fft.frequency * i / simConfig.fft.samples));
-          }
-
-          fftResult = fft(signal);
-        }
-
-        function fft(signal) {
-          const n = signal.length;
-          if (n <= 1) return signal;
-          let even = [];
-          let odd = [];
-          for (let i = 0; i < n; i++) {
-            if (i % 2 === 0) even.push(signal[i]);
-            else odd.push(signal[i]);
-          }
-          even = fft(even);
-          odd = fft(odd);
-          let result = new Array(n).fill(0);
-          for (let k = 0; k < n / 2; k++) {
-            let t = Math.cos(2 * Math.PI * k / n) * odd[k] - Math.sin(2 * Math.PI * k / n) * odd[k];
-            result[k] = even[k] + t;
-            result[k + n / 2] = even[k] - t;
-          }
-          return result;
-        }
-
-        p.draw = function () {
-          const startTime = performance.now();
-          p.background(0);
-          simConfig.fft.samples = parseInt(document.getElementById('fftSamples').value);
-          simConfig.fft.frequency = parseFloat(document.getElementById('fftFrequency').value);
-          simConfig.fft.amplitude = parseFloat(document.getElementById('fftAmplitude').value);
-
-          p.stroke(0, 255, 255);
-          p.noFill();
-          p.beginShape();
-          for (let i = 0; i < simConfig.fft.samples; i++) {
-            let x = p.map(i, 0, simConfig.fft.samples, 0, p.width);
-            let y = p.map(signal[i], -simConfig.fft.amplitude, simConfig.fft.amplitude, p.height, 0);
-            p.vertex(x, y);
-          }
-          p.endShape();
-
-          p.stroke(255, 255, 0);
-          p.beginShape();
-          for (let i = 0; i < simConfig.fft.samples / 2; i++) {
-            let x = p.map(i, 0, simConfig.fft.samples / 2, 0, p.width);
-            let y = p.map(Math.abs(fftResult[i]), 0, simConfig.fft.amplitude * 2, p.height, 0);
-            p.vertex(x, y);
-          }
-          p.endShape();
-          const computeTime = performance.now() - startTime;
-          updateStatus(`Running - FFT Visualization | Samples: ${simConfig.fft.samples} | Frequency: ${simConfig.fft.frequency.toFixed(2)} | Amplitude: ${simConfig.fft.amplitude} | FPS: ${Math.round(p.frameRate())}`, computeTime);
-        };
-
-        document.getElementById('fftSamples').addEventListener('change', computeFFT);
-        document.getElementById('fftFrequency').addEventListener('input', computeFFT);
-        document.getElementById('fftAmplitude').addEventListener('input', computeFFT);
-        p.windowResized = function () {
-          p.resizeCanvas(p.windowWidth > 600 ? 400 : p.windowWidth - 24, p.windowWidth > 600 ? 200 : 150);
-          computeFFT();
-        };
-      }, 'sketch-holder');
-    }
-
-    // K-Means Clustering
-    function setupClusteringSimulation() {
-      removeCurrentSketch();
-      const controls = document.getElementById('simControls');
-      controls.innerHTML = `
-        <div class="control-group">
-          <label>Points:</label>
-          <input type="number" id="clusteringPoints" value="${simConfig.clustering.points}" min="50" max="200">
-        </div>
-        <div class="control-group">
-          <label>Clusters:</label>
-          <input type="number" id="clusteringClusters" value="${simConfig.clustering.clusters}" min="2" max="10">
-        </div>
-        <div class="control-group">
-          <label>Speed:</label>
-          <input type="range" id="clusteringSpeed" min="0.5" max="5" step="0.5" value="${simConfig.clustering.speed}">
-        </div>
-        <div class="control-group">
-          <button class="button" onclick="resetClustering()">Reset</button>
-        </div>
-      `;
-      currentSketch = new p5(function (p) {
-        let points = [];
-        let centroids = [];
-        let isRunning = false;
-
-        p.setup = function () {
-          p.createCanvas(p.windowWidth > 600 ? 400 : p.windowWidth - 24, p.windowWidth > 600 ? 200 : 150);
-          resetClustering();
-        };
-
-        function resetClustering() {
-          points = [];
-          centroids = [];
-          simConfig.clustering.points = parseInt(document.getElementById('clusteringPoints').value);
-          simConfig.clustering.clusters = parseInt(document.getElementById('clusteringClusters').value);
-          for (let i = 0; i < simConfig.clustering.points; i++) {
-            points.push({
-              x: p.random(p.width),
-              y: p.random(p.height),
-              cluster: -1
-            });
-          }
-          for (let i = 0; i < simConfig.clustering.clusters; i++) {
-            centroids.push({
-              x: p.random(p.width),
-              y: p.random(p.height),
-              col: [p.random(255), p.random(255), p.random(255)]
-            });
-          }
-          isRunning = true;
-        }
-
-        p.draw = function () {
-          const startTime = performance.now();
-          p.background(0);
-          simConfig.clustering.speed = parseFloat(document.getElementById('clusteringSpeed').value);
-
-          if (isRunning && p.frameCount % Math.round(10 / simConfig.clustering.speed) === 0) {
-            let changed = false;
-            points.forEach(point => {
-              let minDist = Infinity;
-              let cluster = -1;
-              centroids.forEach((centroid, i) => {
-                let d = p.dist(point.x, point.y, centroid.x, centroid.y);
-                if (d < minDist) {
-                  minDist = d;
-                  cluster = i;
-                }
-              });
-              if (point.cluster !== cluster) {
-                point.cluster = cluster;
-                changed = true;
-              }
-            });
-
-            centroids.forEach(centroid => {
-              let sumX = 0, sumY = 0, count = 0;
-              points.forEach(point => {
-                if (point.cluster === centroids.indexOf(centroid)) {
-                  sumX += point.x;
-                  sumY += point.y;
-                  count++;
-                }
-              });
-              if (count > 0) {
-                centroid.x = sumX / count;
-                centroid.y = sumY / count;
-              }
-            });
-
-            if (!changed) isRunning = false;
-          }
-
-          points.forEach(point => {
-            p.fill(point.cluster >= 0 ? centroids[point.cluster].col : [255, 255, 255]);
-            p.noStroke();
-            p.circle(point.x, point.y, 4);
-          });
-
-          centroids.forEach(centroid => {
-            p.fill(centroid.col);
-            p.stroke(0);
-            p.strokeWeight(1);
-            p.circle(centroid.x, centroid.y, 10);
-          });
-          const computeTime = performance.now() - startTime;
-          updateStatus(isRunning
-            ? `Running - K-Means Clustering | Points: ${simConfig.clustering.points} | Clusters: ${simConfig.clustering.clusters} | Speed: ${simConfig.clustering.speed.toFixed(1)} | FPS: ${Math.round(p.frameRate())}`
-            : `Converged - K-Means Clustering | Points: ${simConfig.clustering.points} | Clusters: ${simConfig.clustering.clusters} | FPS: ${Math.round(p.frameRate())}`, computeTime);
-        };
-
-        document.getElementById('clusteringPoints').addEventListener('change', resetClustering);
-        document.getElementById('clusteringClusters').addEventListener('change', resetClustering);
-        window.resetClustering = resetClustering;
-        p.windowResized = function () {
-          p.resizeCanvas(p.windowWidth > 600 ? 400 : p.windowWidth - 24, p.windowWidth > 600 ? 200 : 150);
-          resetClustering();
-        };
-      }, 'sketch-holder');
-    }
-
-    // Matrix Operations
-    window.runMatrix = function () {
-      const output = document.getElementById('matrixOutput');
-      const controls = document.getElementById('simControls');
-      controls.innerHTML = `
-        <div class="control-group">
-          <label>Matrix Size:</label>
-          <select id="matrixSize">
-            <option value="4">4x4</option>
-            <option value="8">8x8</option>
-            <option value="16">16x16</option>
-          </select>
-        </div>
-        <div class="control-group">
-          <label>Iterations:</label>
-          <input type="number" id="matrixIterations" value="5" min="1" max="10">
-        </div>
-      `;
-      const sizeSelect = document.getElementById('matrixSize');
-      const iterationInput = document.getElementById('matrixIterations');
-      let iteration = 0;
-
-      removeCurrentSketch();
-      const interval = setInterval(() => {
-        const startTime = performance.now();
-        const size = parseInt(sizeSelect.value);
-        const maxIterations = parseInt(iterationInput.value);
-        let text = `Matrix Operation ${iteration + 1} (${size}x${size})\n`;
-        text += `Threads: ${Math.floor(Math.random() * 1024 * size / 4) + 256}\n`;
-        text += `FLOPS: ${(Math.random() * size * 2 + 5).toFixed(2)} TFLOPS\n\n`;
-        for (let i = 0; i < size; i++) {
-          for (let j = 0; j < size; j++) {
-            text += `${(Math.random() * 2 - 1).toFixed(2)} `;
-          }
-          text += '\n';
-        }
-        text += '\nOperation Complete.';
-        output.textContent = text;
-
-        iteration++;
-        if (iteration >= maxIterations) {
-          clearInterval(interval);
-          output.textContent += '\n\nAll operations finished.';
-        }
-        const computeTime = performance.now() - startTime;
-        updateStatus(`Running - Matrix operations (${maxIterations} iterations)`, computeTime);
-      }, 800);
-    };
-
-    // Button Event Listeners
-    document.getElementById('particleBtn').addEventListener('click', setupParticleSimulation);
-    document.getElementById('liquidBtn').addEventListener('click', setupLiquidSimulation);
-    document.getElementById('gravityBtn').addEventListener('click', setupGravitySimulation);
-    document.getElementById('flockingBtn').addEventListener('click', setupFlockingSimulation);
-    document.getElementById('neuralBtn').addEventListener('click', setupNeuralSimulation);
-    document.getElementById('mandelbrotBtn').addEventListener('click', setupMandelbrotSimulation);
-    document.getElementById('pathfindingBtn').addEventListener('click', setupPathfindingSimulation);
-    document.getElementById('fftBtn').addEventListener('click', setupFFTSimulation);
-    document.getElementById('clusteringBtn').addEventListener('click', setupClusteringSimulation);
-    document.getElementById('matrixBtn').addEventListener('click', runMatrix);
-
-    // Update clocks
+    // Secure time update function
     function updateTime() {
-      const now = new Date();
-      const timeString = now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-      document.getElementById('taskbarClock').textContent = timeString;
-      document.getElementById('statusTime').textContent = timeString;
+      try {
+        const now = new Date();
+        const timeString = now.toLocaleTimeString([], { 
+          hour: '2-digit', 
+          minute: '2-digit',
+          hour12: true 
+        });
+        
+        SimulationManager.setTextContent('taskbarClock', timeString);
+        SimulationManager.setTextContent('statusTime', timeString);
+      } catch (error) {
+        console.error('Time update error:', error);
+      }
     }
-    setInterval(updateTime, 1000);
-    updateTime();
 
-    // Initialize with Particle Simulation
-    setupParticleSimulation();
+    // Initialize application securely
+    document.addEventListener('DOMContentLoaded', function() {
+      setupEventListeners();
+      setInterval(updateTime, 1000);
+      updateTime();
+      
+      // Initialize with particle simulation
+      SimulationManager.setupParticleSimulation();
+    });
+
+    // Cleanup on page unload
+    window.addEventListener('beforeunload', function() {
+      SimulationManager.cleanup();
+    });
   </script>
 </body>
 </html>

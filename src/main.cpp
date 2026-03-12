@@ -58,8 +58,7 @@ namespace Term {
   }
 }
 
-
-//  SHELL EXEC HELPER
+/* Shell Helper */
 std::string execCommand(const std::string& cmd) {
   std::string result;
   FILE* pipe = popen(cmd.c_str(), "r");
@@ -71,7 +70,7 @@ std::string execCommand(const std::string& cmd) {
   return result;
 }
 
-//  GPU INFO STRUCT
+/* GPU INFO */
 struct GPUInfo {
   std::string name;
   std::string vendor;
@@ -148,7 +147,7 @@ void printBanner() {
   Term::printLine('-', 60);
 }
 
-//  MAIN MENU
+/* Main Menu */
 void printMenu() {
   std::cout << "\n";
   std::cout << Color::BOLD << "  MAIN MENU\n" << Color::RESET;
@@ -163,9 +162,7 @@ void printMenu() {
   std::cout << Color::BOLD << "\n  ❯ " << Color::RESET;
 }
 
-// ─────────────────────────────────────────────
-//  [1] GPU STATUS
-// ─────────────────────────────────────────────
+/* GPU STATUS */
 void viewGPUStatus() {
   Term::clearScreen();
   printBanner();

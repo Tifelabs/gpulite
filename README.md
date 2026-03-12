@@ -32,7 +32,7 @@ Or directly with g++:
 g++ -std=c++17 -O2 -o gpulite main.cpp && ./gpulite
 ```
 
-## Roadmap
+## WIP... (I'm still working on some test and school.. sorry)
 
 - [x] GPU status (Metal device info)
 - [x] GPU benchmark (scored phases)

@@ -12,7 +12,7 @@
 #include "src/gpu/process.hpp"
 #include "src/gpu/monitor.hpp"
 
-int main(int argc, char* argv[], char** envp) {
+int main() {
   srand(static_cast<unsigned>(time(nullptr)));
 
   char choice;

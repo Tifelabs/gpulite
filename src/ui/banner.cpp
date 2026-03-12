@@ -13,6 +13,7 @@ void printBanner() {
   std::cout << "  ██║   ██║██╔═══╝ ██║   ██║██║     ██║   ██║   ██╔══╝  \n";
   std::cout << "  ╚██████╔╝██║     ╚██████╔╝███████╗██║   ██║   ███████╗\n";
   std::cout << "   ╚═════╝ ╚═╝      ╚═════╝ ╚══════╝╚═╝   ╚═╝   ╚══════╝\n";
+  std::cout << "\t\t\t AUTHOR ::::: TIFELABS";
   std::cout << Color::RESET << Color::DIM;
   Term::printCentered("Lightweight GPU Monitor & Benchmark Tool", 60);
   Term::printCentered("v0.1.0 — macOS | gpulite.com", 60);

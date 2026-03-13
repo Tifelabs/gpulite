@@ -1,10 +1,12 @@
 # gpulite
 > Lightweight GPU monitor & benchmark tool for macOS — built in C++
-
 ![Platform](https://img.shields.io/badge/platform-macOS-lightgrey)
 ![Language](https://img.shields.io/badge/language-C%2B%2B17-blue)
 ![License](https://img.shields.io/badge/license-GNU-green)
 ![Version](https://img.shields.io/badge/version-0.1.0-orange)
+
+![gpulite](src/images/main.png)
+![gpulite](src/images/gpu_status.png)
 
 ## Features
 - **GPU Status** — Hardware overview: name, vendor, VRAM, Metal support, core count

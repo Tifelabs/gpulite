@@ -12,7 +12,7 @@
 - **GPU Processes** — Active GPU-adjacent workloads with CPU/MEM usage
 - **Live Monitor** — Real-time updating stats with colored progress bars
 
-## Build
+## Building with CMake
 
 ```bash
 git clone https://github.com/tifelabs/gpulite
@@ -23,13 +23,23 @@ make
 ./gpulite
 ```
 
+#### OR
+
+```bash
+git clone https://github.com/tifelabs/gpulite
+cd gpulite
+cmake -S . -B build && cmake --build build
+./gpulite
+```
+
+
 Or directly with g++:
 
 ```bash
 g++ -std=c++17 -O2 -o gpulite main.cpp src/**/*.cpp && ./gpulite
 ```
 
-## Roadmap
+## wip
 > WIP — balancing this project alongside school
 
 - [x] GPU status (Metal device info)
@@ -40,7 +50,6 @@ g++ -std=c++17 -O2 -o gpulite main.cpp src/**/*.cpp && ./gpulite
 - [ ] Export results to JSON/CSV
 - [ ] Linux support (NVML / ROCm)
 - [ ] Windows support
-- [ ] Historical graphs
 
 ## Requirements
 - macOS 10.14+

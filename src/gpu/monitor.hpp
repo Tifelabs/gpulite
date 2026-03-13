@@ -1,4 +1,5 @@
 #pragma once
+#include <string>
 #include <csignal>
 
 extern volatile sig_atomic_t liveRunning;

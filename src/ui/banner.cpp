@@ -23,7 +23,7 @@ void printBanner() {
 
 void printMenu() {
   std::cout << "\n" << Color::BOLD << "  MAIN MENU\n" << Color::RESET << "\n";
-  std::cout << "  " << Color::GREEN  << "[1]" << Color::RESET << "  GPU Status       — Hardware overview\n";
+  std::cout << "  " << Color::GREEN  << "[1]" << Color::RESET << "  GPU Status        — Hardware overview\n";
   std::cout << "  " << Color::YELLOW << "[2]" << Color::RESET << "  GPU Benchmark     — Stress test & score\n";
   std::cout << "  " << Color::BLUE   << "[3]" << Color::RESET << "  GPU Processes     — Active GPU workloads\n";
   std::cout << "  " << Color::CYAN   << "[4]" << Color::RESET << "  Live Monitor      — Real-time stats\n";

@@ -20,6 +20,7 @@ target_link_libraries(gpulite
   "-framework Metal"
   "-framework Foundation"
   "-framework IOKit"
+  "-framework CoreFoundation"
 )
 
 install(TARGETS gpulite DESTINATION bin)

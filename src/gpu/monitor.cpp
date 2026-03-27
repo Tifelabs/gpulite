@@ -44,21 +44,29 @@ void liveMonitor() {
   Term::printLine('-', 60);
   std::cout << "\n";
 
-  std::cout << "  " << Color::CYAN << std::left << std::setw(18) << "GPU Load"      << Color::RESET << "\n";
-  std::cout << "  " << Color::CYAN << std::left << std::setw(18) << "Memory Active" << Color::RESET << "\n";
-  std::cout << "  " << Color::CYAN << std::left << std::setw(18) << "CPU User"      << Color::RESET << "\n";
-  std::cout << "  " << Color::CYAN << std::left << std::setw(18) << "CPU System"    << Color::RESET << "\n";
+  int labelRows[4];
+  const char* labels[4] = {"GPU Load", "Memory Active", "CPU User", "CPU System"};
+
+  for (int i = 0; i < 4; i++) {
+    int row = 0, col = 0;
+    std::cout.flush();
+    printf("\033[6n");  // ask terminal for cursor position
+    fflush(stdout);
+    scanf("\033[%d;%dR", &row, &col);
+    labelRows[i] = row;
+
+    std::cout << "  " << Color::CYAN
+              << std::left << std::setw(18) << labels[i]
+              << Color::RESET << "\n";
+  }
+
   std::cout << "\n";
   Term::printLine('-', 60);
   std::cout << "\n";
 
-
-  const int FIRST_BAR_ROW = 14;
-  // Bar starts after the 18-char label + 2 spaces indent
   const int BAR_COL = 21;
 
   while (liveRunning) {
-    // Fetch stats
     std::string cpuRaw = execCommand("top -l 1 -n 0 | grep 'CPU usage' 2>/dev/null");
     float userPct = 0, sysPct = 0, idlePct = 100;
     sscanf(cpuRaw.c_str(), " CPU usage: %f%% user, %f%% sys, %f%% idle",
@@ -84,7 +92,7 @@ void liveMonitor() {
       const char* barColor = pct > 80 ? Color::RED :
                              pct > 50 ? Color::YELLOW : Color::GREEN;
 
-      Term::moveCursor(FIRST_BAR_ROW + i, BAR_COL);
+      Term::moveCursor(labelRows[i], BAR_COL);
       std::cout << "[" << barColor;
       for (int j = 0; j < 30; j++)
         std::cout << (j < filled ? "█" : "░");
@@ -94,8 +102,8 @@ void liveMonitor() {
                 << Color::RESET << "  ";
     }
 
-    // Update timestamp in place
-    Term::moveCursor(FIRST_BAR_ROW + 6, 1);
+    // Timestamp row is 2 below last label
+    Term::moveCursor(labelRows[3] + 2, 1);
     auto now = std::chrono::system_clock::now();
     std::time_t t = std::chrono::system_clock::to_time_t(now);
     std::string ts = std::ctime(&t);

@@ -36,37 +36,14 @@ void liveMonitor() {
   liveRunning = 1;
   Term::hideCursor();
 
-  Term::clearScreen();
-  printBanner();
-  std::cout << Color::BOLD << Color::CYAN
-            << "  ● LIVE MONITOR   " << Color::DIM
-            << "[Press Ctrl+C to exit]\n" << Color::RESET;
-  Term::printLine('-', 60);
-  std::cout << "\n";
-
-  int labelRows[4];
-  const char* labels[4] = {"GPU Load", "Memory Active", "CPU User", "CPU System"};
-
-  for (int i = 0; i < 4; i++) {
-    int row = 0, col = 0;
-    std::cout.flush();
-    printf("\033[6n");  // ask terminal for cursor position
-    fflush(stdout);
-    scanf("\033[%d;%dR", &row, &col);
-    labelRows[i] = row;
-
-    std::cout << "  " << Color::CYAN
-              << std::left << std::setw(18) << labels[i]
-              << Color::RESET << "\n";
-  }
-
-  std::cout << "\n";
-  Term::printLine('-', 60);
-  std::cout << "\n";
-
-  const int BAR_COL = 21;
-
   while (liveRunning) {
+    Term::clearScreen();
+    printBanner();
+    std::cout << Color::BOLD << Color::CYAN
+              << "  ● LIVE MONITOR   " << Color::DIM
+              << "[Press Ctrl+C to exit]\n" << Color::RESET;
+    Term::printLine('-', 60);
+
     std::string cpuRaw = execCommand("top -l 1 -n 0 | grep 'CPU usage' 2>/dev/null");
     float userPct = 0, sysPct = 0, idlePct = 100;
     sscanf(cpuRaw.c_str(), " CPU usage: %f%% user, %f%% sys, %f%% idle",
@@ -78,40 +55,20 @@ void liveMonitor() {
     sscanf(memRaw.c_str(), "Pages active: %ld.", &activePages);
     float memUsedGB = (activePages * 4096.0f) / (1024.0f * 1024.0f * 1024.0f);
 
-    float values[4] = {
-      gpuPct    > 100 ? 100.0f : gpuPct,
-      memUsedGB > 16  ? 100.0f : memUsedGB / 16.0f * 100.0f,
-      userPct   > 100 ? 100.0f : userPct,
-      sysPct    > 100 ? 100.0f : sysPct
-    };
+    std::cout << "\n";
+    printProgressBar("GPU Load",      gpuPct    > 100 ? 100 : gpuPct);
+    printProgressBar("Memory Active", memUsedGB > 16  ? 100 : memUsedGB / 16 * 100);
+    printProgressBar("CPU User",      userPct   > 100 ? 100 : userPct);
+    printProgressBar("CPU System",    sysPct    > 100 ? 100 : sysPct);
 
-    for (int i = 0; i < 4; i++) {
-      float pct    = values[i];
-      int   filled = (int)(pct / 100.0f * 30);
+    std::cout << "\n";
+    Term::printLine('-', 60);
 
-      const char* barColor = pct > 80 ? Color::RED :
-                             pct > 50 ? Color::YELLOW : Color::GREEN;
-
-      Term::moveCursor(labelRows[i], BAR_COL);
-      std::cout << "[" << barColor;
-      for (int j = 0; j < 30; j++)
-        std::cout << (j < filled ? "█" : "░");
-      std::cout << Color::RESET << "] "
-                << Color::BOLD << std::setw(5) << std::fixed
-                << std::setprecision(1) << pct << "%"
-                << Color::RESET << "  ";
-    }
-
-    // Timestamp row is 2 below last label
-    Term::moveCursor(labelRows[3] + 2, 1);
     auto now = std::chrono::system_clock::now();
     std::time_t t = std::chrono::system_clock::to_time_t(now);
-    std::string ts = std::ctime(&t);
-    ts.pop_back();
-    std::cout << Color::DIM << "  Updated: " << ts << "   " << Color::RESET;
-    std::cout.flush();
+    std::cout << Color::DIM << "  Updated: " << std::ctime(&t) << Color::RESET;
 
-    std::this_thread::sleep_for(std::chrono::seconds(1));
+    std::this_thread::sleep_for(std::chrono::seconds(2));
   }
 
   Term::showCursor();
